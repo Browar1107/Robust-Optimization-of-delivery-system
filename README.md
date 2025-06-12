@@ -4,11 +4,6 @@ Liczba Klientów - 1000 ( lokazliazja wrocław)
 
 Lizba Dostawców( Rolników) - 100 ( Promień lokalizacji 50km od wrocławia losowo na mapie )
 
-Średnio każdy klient zamawia 4 razy misięcznie od losowego rolnika o wartości z naszym zyskiem 10zł wiec zysk to 40 000 meiesięcznie
-
-
-
-Koszt utrzymania paczkoPunktu 1000zł miesięcznie, Paczko punkt nie może być dalej niż 20km od każdego rolnika 
 
 1 przesyłka - 6,36, czyli jeśli nadana przesyłka jest tylko jedna, to zysk z tej przesyłki to 10-6,36 = 3,64
 2 przesyłki - 5,71

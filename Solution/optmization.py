@@ -131,17 +131,17 @@
 
 import pulp
 import pandas as pd
-from Solution.distance_matrix import DistanceMatrix
-from Solution.scenarios import Scenarios
+from distance_matrix import DistanceMatrix
+from scenarios import Scenarios
 from test import Dane
 
 distances = DistanceMatrix()
-distances.wczytaj_z_pliku("dane.txt")
+distances.wczytaj_z_pliku("Robust-Optimization-of-delivery-system\Solution\dane.txt")
 distances.konwertuj_wszystkich_na_km()
 macierz_D = distances.oblicz_macierz_odleglosci()
 
 dane = Dane()
-dane.wczytaj_z_pliku("dane.txt")
+dane.wczytaj_z_pliku("Robust-Optimization-of-delivery-system\Solution\dane.txt")
 dane.konwertuj_wszystkich_na_km()
 
 scenarios_manager = Scenarios(dane)

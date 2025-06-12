@@ -1,15 +1,15 @@
-
-
-
-
 import random
 import numpy as np
 import json
 from distance_matrix import DistanceMatrix
 from test import Dane
 import pulp
-from best_solution_data import best_solution
+#from best_solution_data import best_solution  #Comment this line for the script to run correctly
 from scenarios import Scenarios
+import matplotlib.pyplot as plt
+from best_solution_data import best_solution  # Importing the best solution from the provided file
+
+
 
 def greedy_set_cover(D, N, radius=10):
     pokryte = set()
@@ -100,7 +100,7 @@ def evaluate_strategy(farmer_set, scenarios, dane, D, koszty_przesylek):
         cost = compute_solution_cost(chosen_set, scenario_df, dane, D, koszty_przesylek, dane_inv)
         actual_profit = profit_sum - cost
         profits.append(actual_profit)
-    return sum(profits) / len(profits)
+    return profits
 
 def run_comparison():
     dane = Dane()
@@ -113,8 +113,9 @@ def run_comparison():
     N = len(dane.rolnicy)
 
     scenarios_manager = Scenarios(dane)
+    num_scenarios = 20
     scenario_list = []
-    for i in range(20):
+    for i in range(num_scenarios):
         df = scenarios_manager.generate_scenario(KLIENTOW=100, MIESIAC=30)
         profit_per_farmer = df.groupby("rolnik_idx")["profit"].sum()
         scenario_list.append({"scenario_df": df, "profit_per_farmer": profit_per_farmer})
@@ -124,13 +125,63 @@ def run_comparison():
     greedy = greedy_set_cover(D, N)
     random_cover = random_valid_cover(D, N)
     set_cover = pulp_set_cover(D, N)
-    minmax = best_solution['set']
+    minmax = best_solution['set']  # Using the best solution from the provided data
+
+    # Evaluate strategies and store individual scenario profits
+    greedy_profits = evaluate_strategy(greedy, scenario_list, dane, D, koszty_przesylek)
+    random_profits = evaluate_strategy(random_cover, scenario_list, dane, D, koszty_przesylek)
+    set_cover_profits = evaluate_strategy(set_cover, scenario_list, dane, D, koszty_przesylek)
+    minmax_profits = evaluate_strategy(minmax, scenario_list, dane, D, koszty_przesylek)
+
+    # Calculate average profits
+    greedy_avg = np.mean(greedy_profits)
+    random_avg = np.mean(random_profits)
+    set_cover_avg = np.mean(set_cover_profits)
+    minmax_avg = np.mean(minmax_profits)
 
     print("Comparison of Pickup Point Strategies:")
-    print(f"Greedy Set Cover - Points: {len(greedy)}, Avg Profit: {evaluate_strategy(greedy, scenario_list, dane, D, koszty_przesylek):.2f}")
-    print(f"Random Valid Cover - Points: {len(random_cover)}, Avg Profit: {evaluate_strategy(random_cover, scenario_list, dane, D, koszty_przesylek):.2f}")
-    print(f"Minimized Set Cover (Pulp) - Points: {len(set_cover)}, Avg Profit: {evaluate_strategy(set_cover, scenario_list, dane, D, koszty_przesylek):.2f}")
-    print(f"Minimax Regret Solution - Points: {len(minmax)}, Avg Profit: {evaluate_strategy(minmax, scenario_list, dane, D, koszty_przesylek):.2f}")
+    print(f"Greedy Set Cover - Points: {len(greedy)}, Avg Profit: {greedy_avg:.2f}")
+    print(f"Random Valid Cover - Points: {len(random_cover)}, Avg Profit: {random_avg:.2f}")
+    print(f"Minimized Set Cover (Pulp) - Points: {len(set_cover)}, Avg Profit: {set_cover_avg:.2f}")
+    print(f"Minimax Regret Solution - Points: {len(minmax)}, Avg Profit: {minmax_avg:.2f}")
+
+    # ---------------------- Visualization 1: Bar chart of average profits ----------------------
+    strategies = ['Greedy', 'Random', 'Pulp', 'Minimax']
+    avg_profits = [greedy_avg, random_avg, set_cover_avg, minmax_avg]
+
+    plt.figure(figsize=(10, 6))
+    plt.bar(strategies, avg_profits, color=['blue', 'orange', 'green', 'red'])
+    plt.xlabel("Strategy")
+    plt.ylabel("Average Profit")
+    plt.title("Comparison of Average Profits Across Strategies")
+    plt.ylim(min(avg_profits) * 0.9, max(avg_profits) * 1.1)  # Adjust y-axis limits
+
+    # Add value labels on top of bars
+    for i, profit in enumerate(avg_profits):
+        plt.text(i, profit + 0.5, f"{profit:.2f}", ha='center')
+
+    plt.tight_layout()
+    plt.show()
+
+
+    # ---------------------- Visualization 2: Line chart of scenario profits ----------------------
+    plt.figure(figsize=(12, 6))
+    scenario_numbers = range(1, num_scenarios + 1)
+
+    plt.plot(scenario_numbers, greedy_profits, label='Greedy', marker='o')
+    plt.plot(scenario_numbers, random_profits, label='Random', marker='o')
+    plt.plot(scenario_numbers, set_cover_profits, label='Pulp', marker='o')
+    plt.plot(scenario_numbers, minmax_profits, label='Minimax', marker='o')
+
+    plt.xlabel("Scenario Number")
+    plt.ylabel("Profit")
+    plt.title("Profit for Each Strategy Across Scenarios")
+    plt.xticks(np.arange(1, num_scenarios + 1, step=1))  # Show all scenario numbers
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
 
 if __name__ == "__main__":
     run_comparison()
