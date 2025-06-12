@@ -1,0 +1,1 @@
+best_solution2 = {'solution_idx': 0, 'set': {0, 36, 38, 7, 8, 40, 11, 43, 15, 17, 23, 25, 27, 29}, 'max_regret': 0.0, 'avg_profit': 953.7824447160776}
